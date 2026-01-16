@@ -41,7 +41,7 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: RenduDevopsKube/
-          local-dir: ./
-          include: KayelahoutouZabdielWordpress.zip
+          local-dir: KayelahoutouZabdielWordpress.zip
           dangerous-clean-slate: false
           state-name: "none"
+
