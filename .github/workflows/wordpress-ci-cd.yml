@@ -19,7 +19,7 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: samkirkland/ftp-deploy-action@v3
+      - uses: actions/checkout@v4
 
       - name: Installer FTP client
         run: sudo apt-get install lftp -y
@@ -32,4 +32,5 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: k8s
           server-dir: RenduDevopsKube/NomPrenomWordpress/
+
 
