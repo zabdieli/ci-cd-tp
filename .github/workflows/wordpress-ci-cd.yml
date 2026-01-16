@@ -2,8 +2,7 @@ name: CI-CD WordPress
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
 
 jobs:
@@ -13,16 +12,18 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Install Kompose
         run: |
           curl -L https://github.com/kubernetes/kompose/releases/download/v1.32.0/kompose-linux-amd64 -o kompose
           chmod +x kompose
           sudo mv kompose /usr/local/bin/kompose
+
       - name: Generate Kubernetes manifests with Kompose
         run: |
           rm -rf kube
           mkdir kube
-          kompose convert -o kube/
+          kompose convert -f docker-compose.yml -o kube/
 
       - name: Add Kubernetes Secret
         run: |
@@ -35,10 +36,10 @@ jobs:
       - name: Upload ZIP to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ftp.cluster114.hosting.ovh.net
-          username: ludivinej
-          password: Passtemp26
-          server-dir: RenduDevopsKube/KayelahoutouZabdielWordpress/
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: RenduDevopsKube/
           local-dir: ./
           include: |
             KayelahoutouZabdielWordpress.zip
