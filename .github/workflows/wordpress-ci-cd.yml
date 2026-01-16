@@ -2,7 +2,8 @@ name: CI-CD WordPress
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
 
 jobs:
@@ -21,17 +22,17 @@ jobs:
 
       - name: Generate Kubernetes manifests with Kompose
         run: |
-          rm -rf kube
-          mkdir kube
-          kompose convert -f docker-compose.yml -o kube/
+          rm -rf kube_temp
+          mkdir kube_temp
+          kompose convert -f docker-compose.yml -o kube_temp/
 
       - name: Add Kubernetes Secret
         run: |
-          cp kube/wordpress-secret.yaml kube/wordpress-secret.yaml || true
+          cp kube_temp/wordpress-secret.yaml kube_temp/wordpress-secret.yaml || true
 
       - name: Zip Kubernetes manifests
         run: |
-          zip -r KayelahoutouZabdielWordpress.zip kube
+          zip -r KayelahoutouZabdielWordpress.zip kube_temp
 
       - name: Upload ZIP to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -41,5 +42,6 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: RenduDevopsKube/
           local-dir: ./
-          include: |
-            KayelahoutouZabdielWordpress.zip
+          include: KayelahoutouZabdielWordpress.zip
+          dangerous-clean-slate: false
+          state-name: "none"
