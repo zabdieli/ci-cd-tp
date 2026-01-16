@@ -10,11 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Installer yamllint
+        run: |
+          sudo apt-get update
+          sudo apt-get install yamllint -y
+
       - name: Lint YAML manifests
         run: |
-          sudo apt-get install yamllint -y
-          yamllint k8s/*.yaml
-
+          yamllint wordpress/k8s/*.yaml
   deploy:
     needs: lint
     runs-on: ubuntu-latest
@@ -30,7 +34,5 @@ jobs:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: k8s
+          local-dir: wordpress/k8s
           server-dir: RenduDevopsKube/NomPrenomWordpress/
-
-
