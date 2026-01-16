@@ -33,7 +33,7 @@ jobs:
           zip -r KayelahoutouZabdielWordpress.zip kube
 
       - name: Upload ZIP to FTP
-        uses: SamKirkland/FTP-Deploy-Action@v3
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ftp.cluster114.hosting.ovh.net
           username: ludivinej
