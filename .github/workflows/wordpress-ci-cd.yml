@@ -1,0 +1,37 @@
+name: Wordpress CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint YAML manifests
+        run: |
+          sudo apt-get install yamllint -y
+          yamllint k8s/*.yaml
+
+  deploy:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer FTP client
+        run: sudo apt-get install lftp -y
+
+      - name: Déployer manifests K8s sur FTP
+        env:
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+        run: |
+          lftp -u $FTP_USER,$FTP_PASSWORD $FTP_HOST <<EOF
+          cd RenduDevopsKube
+          mput k8s/*.yaml
+          bye
+          EOF

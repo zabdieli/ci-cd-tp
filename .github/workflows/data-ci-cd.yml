@@ -1,0 +1,32 @@
+name: WordPress CI/CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  generate-k8s:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Kompose
+        run: |
+          curl -L https://github.com/kubernetes/kompose/releases/download/v1.32.0/kompose-linux-amd64 -o kompose
+          chmod +x kompose
+          sudo mv kompose /usr/local/bin/
+
+      - name: Générer manifestes Kubernetes
+        run: |
+          cd wordpress
+          kompose convert -o k8s/
+
+      - name: Upload vers FTP OVH
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ftp.cluster114.hosting.ovh.net
+          username: ludivinej
+          password: Passtemp26
+          local-dir: wordpress/k8s/
+          server-dir: /RenduDevopsKube/NomPrenomWordpress/
