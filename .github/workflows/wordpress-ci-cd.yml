@@ -25,13 +25,11 @@ jobs:
         run: sudo apt-get install lftp -y
 
       - name: Déployer manifests K8s sur FTP
-        env:
-          FTP_USER: ${{ secrets.FTP_USER }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-          FTP_HOST: ${{ secrets.FTP_HOST }}
-        run: |
-          lftp -u $FTP_USER,$FTP_PASSWORD $FTP_HOST <<EOF
-          cd RenduDevopsKube
-          mput k8s/*.yaml
-          bye
-          EOF
+        uses: samkirkland/ftp-deploy-action@v3
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: k8s
+          server-dir: RenduDevopsKube/NomPrenomWordpress/
+
