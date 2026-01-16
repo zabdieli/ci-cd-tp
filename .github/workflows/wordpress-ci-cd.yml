@@ -1,38 +1,44 @@
-name: Wordpress CI/CD
+name: CI-CD WordPress
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
 
 jobs:
-  lint:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Installer yamllint
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Kompose
         run: |
-          sudo apt-get update
-          sudo apt-get install yamllint -y
-
-      - name: Lint YAML manifests
+          curl -L https://github.com/kubernetes/kompose/releases/download/v1.32.0/kompose-linux-amd64 -o kompose
+          chmod +x kompose
+          sudo mv kompose /usr/local/bin/kompose
+      - name: Generate Kubernetes manifests with Kompose
         run: |
-          yamllint wordpress/k8s/*.yaml
-  deploy:
-    needs: lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+          rm -rf kube
+          mkdir kube
+          kompose convert -o kube/
 
-      - name: Installer FTP client
-        run: sudo apt-get install lftp -y
+      - name: Add Kubernetes Secret
+        run: |
+          cp kube/wordpress-secret.yaml kube/wordpress-secret.yaml || true
 
-      - name: Déployer manifests K8s sur FTP
-        uses: samkirkland/ftp-deploy-action@v3
+      - name: Zip Kubernetes manifests
+        run: |
+          zip -r KayelahoutouZabdielWordpress.zip kube
+
+      - name: Upload ZIP to FTP
+        uses: SamKirkland/FTP-Deploy-Action@v3
         with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: wordpress/k8s
-          server-dir: RenduDevopsKube/NomPrenomWordpress/
+          server: ftp.cluster114.hosting.ovh.net
+          username: ludivinej
+          password: Passtemp26
+          server-dir: RenduDevopsKube/KayelahoutouZabdielWordpress/
+          local-dir: ./
+          include: |
+            KayelahoutouZabdielWordpress.zip
