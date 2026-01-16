@@ -19,7 +19,7 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: samkirkland/ftp-deploy-action@v3
 
       - name: Installer FTP client
         run: sudo apt-get install lftp -y
